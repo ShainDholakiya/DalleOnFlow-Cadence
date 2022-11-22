@@ -23,6 +23,7 @@ pub contract DalleOnFlow: NonFungibleToken {
     pub let name: String
     pub let description: String
     pub let thumbnailCID: String
+    pub var flagged: Bool
     pub var metadata: {String: String}
 
     init(_description: String, _thumbnailCID: String, _metadata: {String: String}) {
@@ -32,9 +33,14 @@ pub contract DalleOnFlow: NonFungibleToken {
       self.name = "DOF #".concat(self.id.toString())
       self.description = _description
       self.thumbnailCID = _thumbnailCID
+      self.flagged = false
       self.metadata = _metadata
 
       emit Minted(id: self.id, metadata: _metadata)
+    }
+
+    access(contract) fun flagNFT() {
+      self.flagged = true
     }
 
     pub fun getViews(): [Type] {
@@ -145,7 +151,7 @@ pub contract DalleOnFlow: NonFungibleToken {
     pub fun mintNFT(description: String, thumbnailCID: String, metadata: {String: String}, recepient: Capability<&DalleOnFlow.Collection{DalleOnFlow.CollectionPublic}>, payment: @FlowToken.Vault) {
         pre {
             DalleOnFlow.totalSupply < 9999: "The maximum number of DalleOnFlow NFTs has been reached"
-            payment.balance == 25.0: "Payment does not match the price."
+            payment.balance == 10.24: "Payment does not match the price."
         }
 
         let dofWallet = DalleOnFlow.account.getCapability(/public/flowTokenReceiver)
@@ -157,11 +163,17 @@ pub contract DalleOnFlow: NonFungibleToken {
         let recepientCollection = recepient.borrow()!
         recepientCollection.deposit(token: <- nft)
     }
+
+    pub fun flagNFT(id: UInt64, recepient: Capability<&DalleOnFlow.Collection{DalleOnFlow.CollectionPublic}>): @DalleOnFlow.NFT {
+        let nft = recepient.borrow()!.borrowDalleOnFlowNFT(id: id)
+        nft.flagNFT()
+        return nft
+    }
   }
 
   init() {
     self.totalSupply = 0
-    self.price = 25.0
+    self.price = 10.24
 
     self.CollectionStoragePath = /storage/DalleOnFlowCollection
     self.CollectionPublicPath = /public/DalleOnFlowCollection
