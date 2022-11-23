@@ -164,7 +164,7 @@ pub contract DalleOnFlow: NonFungibleToken {
         recepientCollection.deposit(token: <- nft)
     }
 
-    pub fun flagNFT(id: UInt64, recepient: Capability<&DalleOnFlow.Collection{DalleOnFlow.CollectionPublic}>): @DalleOnFlow.NFT {
+    pub fun flagNFT(id: UInt64, recepient: Capability<&DalleOnFlow.Collection{DalleOnFlow.CollectionPublic}>): &DalleOnFlow.NFT {
         let nft = recepient.borrow()!.borrowDalleOnFlowNFT(id: id)
         nft.flagNFT()
         return nft
