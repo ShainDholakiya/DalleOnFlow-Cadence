@@ -82,7 +82,7 @@ pub contract DalleOnFlow: NonFungibleToken {
                 "https://www.dalleonflow.art/"
               )
         case Type<MetadataViews.Royalties>():
-                    let royaltyReceiver = getAccount(0x3d00bb64551aa3fa).getCapability<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
+                    let royaltyReceiver = getAccount(DalleOnFlow.account.address).getCapability<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
 
                     return MetadataViews.Royalties(
                         [MetadataViews.Royalty(recepient: royaltyReceiver, cut: 0.05, description: "This is the royalty receiver for DalleOnFlow")]
