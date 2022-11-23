@@ -5,12 +5,12 @@ import FlowToken from "../contracts/FlowToken.cdc"
 transaction(description: String, thumbnailCID: String, metadata: {String: String}, price: UFix64) {
     let FlowTokenVault: &FlowToken.Vault
     let CollectionPublic: Capability<&DalleOnFlow.Collection{DalleOnFlow.CollectionPublic}>
-    let AdminNFTMinter: &DalleOnFlow.AdminNFTMinter
+    let Admin: &DalleOnFlow.Admin
     
     prepare(signer: AuthAccount, dofSigner: AuthAccount) {
         self.FlowTokenVault = signer.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)!
 
-        self.AdminNFTMinter = dofSigner.borrow<&DalleOnFlow.AdminNFTMinter>(from: DalleOnFlow.AdminMinterStoragePath)!
+        self.Admin = dofSigner.borrow<&DalleOnFlow.Admin>(from: DalleOnFlow.AdminStoragePath)!
             
         var collectionPubCap = signer.getCapability<&DalleOnFlow.Collection{DalleOnFlow.CollectionPublic}>(DalleOnFlow.CollectionPublicPath)
                 
@@ -24,6 +24,6 @@ transaction(description: String, thumbnailCID: String, metadata: {String: String
             
     execute { 
         let payment <- self.FlowTokenVault.withdraw(amount: price) as! @FlowToken.Vault
-        self.AdminNFTMinter.mintNFT(description: description, thumbnailCID: thumbnailCID, metadata: metadata, recepient: self.CollectionPublic, payment: <- payment)
+        self.Admin.mintNFT(description: description, thumbnailCID: thumbnailCID, metadata: metadata, recepient: self.CollectionPublic, payment: <- payment)
     }
 }

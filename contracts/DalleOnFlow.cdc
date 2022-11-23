@@ -16,7 +16,7 @@ pub contract DalleOnFlow: NonFungibleToken {
 
   pub let CollectionStoragePath: StoragePath
   pub let CollectionPublicPath: PublicPath
-  pub let AdminMinterStoragePath: StoragePath
+  pub let AdminStoragePath: StoragePath
 
   pub resource NFT: NonFungibleToken.INFT, MetadataViews.Resolver {
     pub let id: UInt64 
@@ -147,7 +147,7 @@ pub contract DalleOnFlow: NonFungibleToken {
     return <- create Collection()
   }
 
-  pub resource AdminNFTMinter {
+  pub resource Admin {
     pub fun mintNFT(description: String, thumbnailCID: String, metadata: {String: String}, recepient: Capability<&DalleOnFlow.Collection{DalleOnFlow.CollectionPublic}>, payment: @FlowToken.Vault) {
         pre {
             DalleOnFlow.totalSupply < 9999: "The maximum number of DalleOnFlow NFTs has been reached"
@@ -169,6 +169,10 @@ pub contract DalleOnFlow: NonFungibleToken {
         nft.flagNFT()
         return nft
     }
+
+    pub fun changePrice(newPrice: UFix64) {
+        DalleOnFlow.price = newPrice
+    }
   }
 
   init() {
@@ -177,10 +181,10 @@ pub contract DalleOnFlow: NonFungibleToken {
 
     self.CollectionStoragePath = /storage/DalleOnFlowCollection
     self.CollectionPublicPath = /public/DalleOnFlowCollection
-    self.AdminMinterStoragePath = /storage/DalleOnFlowAdminNFTMinter
+    self.AdminStoragePath = /storage/DalleOnFlowAdmin
 
-    let minter <- create AdminNFTMinter()
-    self.account.save(<-minter, to: self.AdminMinterStoragePath)
+    let admin <- create Admin()
+    self.account.save(<-admin, to: self.AdminStoragePath)
 
     emit ContractInitialized()
   }
