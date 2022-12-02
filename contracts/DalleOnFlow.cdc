@@ -7,6 +7,7 @@ pub contract DalleOnFlow: NonFungibleToken {
 
   pub var totalSupply: UInt64
   pub var price: UFix64
+  pub var mintingEnabled: Bool
     
   pub event ContractInitialized()
   pub event Withdraw(id: UInt64, from: Address?)
@@ -82,7 +83,7 @@ pub contract DalleOnFlow: NonFungibleToken {
                 "https://www.dalleonflow.art/"
               )
         case Type<MetadataViews.Royalties>():
-                    let royaltyReceiver = getAccount(DalleOnFlow.account.address).getCapability<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
+                    let royaltyReceiver = getAccount(0x18deb5b8e5393198).getCapability<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
 
                     return MetadataViews.Royalties(
                         [MetadataViews.Royalty(recepient: royaltyReceiver, cut: 0.05, description: "This is the royalty receiver for DalleOnFlow")]
@@ -120,13 +121,13 @@ pub contract DalleOnFlow: NonFungibleToken {
     }
 
     pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT {
-		return (&self.ownedNFTs[id] as &NonFungibleToken.NFT?)!
-	}
+		  return (&self.ownedNFTs[id] as &NonFungibleToken.NFT?)!
+	  }
 
     pub fun borrowDalleOnFlowNFT(id: UInt64): &DalleOnFlow.NFT {
-		let ref = (&self.ownedNFTs[id] as auth &NonFungibleToken.NFT?)!
-		return ref as! &DalleOnFlow.NFT
-	}
+		  let ref = (&self.ownedNFTs[id] as auth &NonFungibleToken.NFT?)!
+		  return ref as! &DalleOnFlow.NFT
+	  }
 
     pub fun borrowViewResolver(id: UInt64): &AnyResource{MetadataViews.Resolver} {
       let ref = (&self.ownedNFTs[id] as auth &NonFungibleToken.NFT?)!
@@ -150,11 +151,12 @@ pub contract DalleOnFlow: NonFungibleToken {
   pub resource Admin {
     pub fun mintNFT(description: String, thumbnailCID: String, metadata: {String: String}, recepient: Capability<&DalleOnFlow.Collection{DalleOnFlow.CollectionPublic}>, payment: @FlowToken.Vault) {
         pre {
+            DalleOnFlow.mintingEnabled == true: "Minting is not enabled"
             DalleOnFlow.totalSupply < 9999: "The maximum number of DalleOnFlow NFTs has been reached"
             payment.balance == 10.24: "Payment does not match the price."
         }
 
-        let dofWallet = DalleOnFlow.account.getCapability(/public/flowTokenReceiver)
+        let dofWallet = getAccount(0x18deb5b8e5393198).getCapability(/public/flowTokenReceiver)
                             .borrow<&FlowToken.Vault{FungibleToken.Receiver}>()!
         dofWallet.deposit(from: <- payment)
             
@@ -173,11 +175,16 @@ pub contract DalleOnFlow: NonFungibleToken {
     pub fun changePrice(newPrice: UFix64) {
         DalleOnFlow.price = newPrice
     }
+
+    pub fun changeMintingEnabled(isEnabled: Bool) {
+        DalleOnFlow.mintingEnabled = isEnabled
+    }
   }
 
   init() {
     self.totalSupply = 0
     self.price = 10.24
+    self.mintingEnabled = false
 
     self.CollectionStoragePath = /storage/DalleOnFlowCollection
     self.CollectionPublicPath = /public/DalleOnFlowCollection
@@ -189,4 +196,3 @@ pub contract DalleOnFlow: NonFungibleToken {
     emit ContractInitialized()
   }
 }
- 
