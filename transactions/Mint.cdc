@@ -1,4 +1,4 @@
-import DalleOnFlow from "../contracts/DalleOnFlow"
+import DalleOnFlow from "../contracts/DalleOnFlow.cdc"
 import NonFungibleToken from "../contracts/NonFungibleToken.cdc"
 import FlowToken from "../contracts/FlowToken.cdc"
 

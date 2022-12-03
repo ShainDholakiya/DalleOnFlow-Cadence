@@ -1,7 +1,7 @@
-import NonFungibleToken from "NonFungibleToken.cdc"
-import MetadataViews from "MetadataViews.cdc"
-import FlowToken from "FlowToken.cdc"
-import FungibleToken from "FungibleToken.cdc"
+import NonFungibleToken from "./standard/NonFungibleToken.cdc"
+import FungibleToken from "./standard/FungibleToken.cdc"
+import MetadataViews from "./standard/MetadataViews.cdc"
+import FlowToken from "./standard/FlowToken.cdc"
 
 pub contract DalleOnFlow: NonFungibleToken {
 
